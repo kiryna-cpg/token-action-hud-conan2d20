@@ -1,4 +1,5 @@
 export const MODULE_ID = "token-action-hud-conan2d20";
+export const REQUIRED_CORE_MODULE_VERSION = "2.0.16";
 
 export const ACTION_TYPES = {
   SKILL_ROLL: "skill.roll",

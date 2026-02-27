@@ -19,6 +19,7 @@
     ]
   },
   "esmodules": [
+    "scripts/module.js",
     "scripts/index.js"
   ],
   "languages": [
