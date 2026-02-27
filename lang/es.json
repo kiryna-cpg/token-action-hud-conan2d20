@@ -30,5 +30,8 @@
 
   "TAH.Setting.ChatPostMode.Name": "Modo de publicación en chat",
   "TAH.Setting.ChatPostMode.Full": "Descripción completa",
-  "TAH.Setting.ChatPostMode.TitleOnly": "Solo título"
+  "TAH.Setting.ChatPostMode.TitleOnly": "Solo título",
+
+  "TAH.Conan2d20.Open": "Abrir",
+  "TAH.Conan2d20.Equipped": "Equipado"
 }
