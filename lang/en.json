@@ -1,0 +1,34 @@
+{
+  "TAH.Combat": "Combat",
+  "TAH.Attacks": "Attacks",
+  "TAH.Melee": "Melee",
+  "TAH.Ranged": "Ranged",
+  "TAH.Utility": "Utility",
+  "TAH.Initiative": "Initiative",
+
+  "TAH.Skills": "Skills",
+  "TAH.SkillTests": "Skill Tests",
+
+  "TAH.Actions": "Actions",
+  "TAH.Talents": "Talents",
+  "TAH.Inventory": "Inventory",
+  "TAH.Armor": "Armor",
+  "TAH.Kits": "Kits",
+
+  "TAH.BuyDice1": "+1d20",
+  "TAH.BuyDice2": "+2d20",
+  "TAH.BuyDice3": "+3d20",
+
+  "TAH.Setting.EnableHouseRules.Name": "Enable house rules (Skill & Metacurrency Revision)",
+  "TAH.Setting.EnableHouseRules.Hint": "Applies module-specific adjustments (e.g., hide Fortune, enable stress dice purchase helpers).",
+
+  "TAH.Setting.ShowActionsTab.Name": "Show Actions tab",
+  "TAH.Setting.ShowTalentsTab.Name": "Show Talents tab",
+  "TAH.Setting.ShowInventoryTab.Name": "Show Inventory tab",
+
+  "TAH.Setting.OnlyEquippedWeapons.Name": "Only show equipped weapons",
+
+  "TAH.Setting.ChatPostMode.Name": "Chat posting mode",
+  "TAH.Setting.ChatPostMode.Full": "Full description",
+  "TAH.Setting.ChatPostMode.TitleOnly": "Title only"
+}

@@ -1,0 +1,34 @@
+{
+  "TAH.Combat": "Combate",
+  "TAH.Attacks": "Ataques",
+  "TAH.Melee": "Cuerpo a cuerpo",
+  "TAH.Ranged": "A distancia",
+  "TAH.Utility": "Utilidad",
+  "TAH.Initiative": "Iniciativa",
+
+  "TAH.Skills": "Habilidades",
+  "TAH.SkillTests": "Pruebas de habilidad",
+
+  "TAH.Actions": "Acciones",
+  "TAH.Talents": "Talentos",
+  "TAH.Inventory": "Inventario",
+  "TAH.Armor": "Armadura",
+  "TAH.Kits": "Kits",
+
+  "TAH.BuyDice1": "+1d20",
+  "TAH.BuyDice2": "+2d20",
+  "TAH.BuyDice3": "+3d20",
+
+  "TAH.Setting.EnableHouseRules.Name": "Activar reglas caseras (Revisión de Habilidades y Metamoneda)",
+  "TAH.Setting.EnableHouseRules.Hint": "Aplica ajustes del módulo (p. ej., ocultar Fortune, habilitar compra de dados con estrés).",
+
+  "TAH.Setting.ShowActionsTab.Name": "Mostrar pestaña de Acciones",
+  "TAH.Setting.ShowTalentsTab.Name": "Mostrar pestaña de Talentos",
+  "TAH.Setting.ShowInventoryTab.Name": "Mostrar pestaña de Inventario",
+
+  "TAH.Setting.OnlyEquippedWeapons.Name": "Mostrar solo armas equipadas",
+
+  "TAH.Setting.ChatPostMode.Name": "Modo de publicación en chat",
+  "TAH.Setting.ChatPostMode.Full": "Descripción completa",
+  "TAH.Setting.ChatPostMode.TitleOnly": "Solo título"
+}

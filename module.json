@@ -1,0 +1,31 @@
+{
+  "id": "token-action-hud-conan2d20",
+  "title": "Token Action HUD - Conan 2d20",
+  "description": "Token Action HUD Core companion module for Conan 2d20.",
+  "version": "0.0.1",
+  "authors": [
+    { "name": "Kiryna" }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13.351"
+  },
+  "relationships": {
+    "requires": [
+      { "id": "token-action-hud-core", "type": "module" }
+    ],
+    "systems": [
+      { "id": "conan2d20", "type": "system" }
+    ]
+  },
+  "esmodules": [
+    "scripts/index.js"
+  ],
+  "languages": [
+    { "lang": "en", "name": "English", "path": "lang/en.json" },
+    { "lang": "es", "name": "Español", "path": "lang/es.json" }
+  ],
+  "url": "",
+  "manifest": "",
+  "download": ""
+}
