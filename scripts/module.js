@@ -30,12 +30,23 @@ Hooks.once("ready", () => {
     await combatant.setFlag(MODULE_ID, "turnDone", v);
   };
 
+  const isCombatTrackerMomentumUpdateEnabled = () => {
+    try {
+      return !!game.settings.get("conan2d20", "combatTrackerMomentumUpdate");
+    } catch (_e) {
+      // If the system setting is missing for any reason, default to disabled.
+      return false;
+    }
+  };
+
   const getMomentumInput = () =>
     document?.querySelector?.(
       "input.input-momentum[data-type='momentum'], input[data-type='momentum'], input[name='momentum']"
     ) ?? null;
 
   const reimburseMomentum = async () => {
+    if (!isCombatTrackerMomentumUpdateEnabled()) return false;
+
     const input = getMomentumInput();
     if (!input) return false;
 
@@ -146,6 +157,12 @@ Hooks.once("ready", () => {
         const combatNow = game.combat;
         if (!combatNow) return;
         if (!isTurnToggle(ev.target)) return;
+
+        // Do not allow toggling before the encounter starts (round 0)
+        if (Number(combatNow.round ?? 0) === 0) {
+          ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.CombatNotStarted"));
+          return;
+        }
 
         ev.preventDefault();
         ev.stopPropagation();

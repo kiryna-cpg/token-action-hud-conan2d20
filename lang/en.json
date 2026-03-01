@@ -25,7 +25,8 @@
   "TAH.Setting.ShowActionsTab.Name": "Show Actions tab",
   "TAH.Setting.ShowTalentsTab.Name": "Show Talents tab",
   "TAH.Setting.ShowInventoryTab.Name": "Show Inventory tab",
-
+  "TAH.Conan2d20.Setting.ShowSorceryTab.Name": "Show Sorcery Tab",
+  "TAH.Conan2d20.Setting.ShowSorceryTab.Hint": "Show or hide the Sorcery tab (Spells and Petty Enchantments).",
   "TAH.Setting.OnlyEquippedWeapons.Name": "Only show equipped weapons",
 
   "TAH.Setting.ChatPostMode.Name": "Chat posting mode",
@@ -89,5 +90,6 @@
   "TAH.Conan2d20.PreviousTurnNoneActedContent": "No combatant has acted this round. Do you want to go back to the previous round?",
   "TAH.Conan2d20.MomentumReimbursed": "Momentum Point Reimbursed",
   "TAH.Conan2d20.PreviousTurnNoneActedThisRound": "No combatant has acted yet this round.",
-  "TAH.Conan2d20.NextTurnAllActed": "All combatants have already acted this round."
+  "TAH.Conan2d20.NextTurnAllActed": "All combatants have already acted this round.",
+  "TAH.Conan2d20.CombatNotStarted": "Combat has not started yet. Click \"Begin Encounter\"."
 }

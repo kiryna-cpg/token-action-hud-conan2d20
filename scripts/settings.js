@@ -40,6 +40,16 @@ export function registerSettings(onChangeFunction) {
     onChange
   });
 
+    game.settings.register(MODULE_ID, SETTING_KEYS.SHOW_SORCERY_TAB, {
+    name: game.i18n.localize("TAH.Conan2d20.Setting.ShowSorceryTab.Name"),
+    hint: game.i18n.localize("TAH.Conan2d20.Setting.ShowSorceryTab.Hint"),
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: true,
+    onChange
+  });
+
   game.settings.register(MODULE_ID, SETTING_KEYS.ONLY_EQUIPPED_WEAPONS, {
     name: game.i18n.localize("TAH.Setting.OnlyEquippedWeapons.Name"),
     scope: "client",

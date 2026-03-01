@@ -47,6 +47,31 @@ Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
         return actor.sheet?.render(true);
         }
 
+        case ACTION_TYPES.SPELL_CAST: {
+        const itemId = parts[1];
+        if (isRightClick) return this.renderItem(actor, itemId);
+
+        const item = actor.items.get(itemId);
+        if (!item) return;
+
+        // Prefer explicit spell casting APIs if the system provides them
+        if (typeof actor._castSpell === "function") {
+            return actor._castSpell(itemId);
+        }
+        if (typeof actor.castSpell === "function") {
+            return actor.castSpell(itemId);
+        }
+
+        // Some systems unify attacks and spellcasting under the same entrypoint
+        if (typeof actor._executeAttack === "function") {
+            return actor._executeAttack(itemId);
+        }
+
+        // Fallbacks
+        if (typeof item.roll === "function") return item.roll();
+        return item.sheet?.render(true);
+        }
+
         case ACTION_TYPES.WEAPON_USE: {
         const itemId = parts[1];
         if (isRightClick) return this.renderItem(actor, itemId);
@@ -105,6 +130,10 @@ Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
         }
 
 case ACTION_TYPES.TURN_CLAIM: {
+    if (game.combat && Number(game.combat.round ?? 0) === 0) {
+    ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.CombatNotStarted"));
+    return;
+  }
   const alreadyDone = await this._isTurnDone(actor);
   if (alreadyDone) {
     ui.notifications.warn(game.i18n.format("TAH.Conan2d20.TurnAlreadyDone", { name: actor.name }));
@@ -128,6 +157,10 @@ case ACTION_TYPES.TURN_CLAIM: {
 }
 
 case ACTION_TYPES.TURN_SEIZE: {
+    if (game.combat && Number(game.combat.round ?? 0) === 0) {
+    ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.CombatNotStarted"));
+    return;
+  }
 
     const alreadyDone = await this._isTurnDone(actor);
   if (alreadyDone) {

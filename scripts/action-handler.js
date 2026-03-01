@@ -41,6 +41,10 @@ Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
       if (game.settings.get(MODULE_ID, SETTING_KEYS.SHOW_INVENTORY_TAB)) {
         this._addInventory(actor);
       }
+
+      if (game.settings.get(MODULE_ID, SETTING_KEYS.SHOW_SORCERY_TAB)) {
+        this._addSorcery(actor);
+      }      
     }
 
     /** @override */
@@ -62,8 +66,12 @@ Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
         .filter(i => !i.system?.broken);
 
       // Non-weapon attacks in Attacks section (e.g. Steely Glare)
+      // Exclude Sorcery items that must live in the Sorcery tab:
+      // - spell (cast)
+      // - enchantment (petty enchantment attacks)
       const specialAttacks = actor.items
         .filter(i => i.type !== "weapon")
+        .filter(i => !["spell", "enchantment"].includes(i.type))
         .filter(i => (onlyEquippedWeapons ? !!i.system?.equipped : true))
         .filter(i => !i.system?.broken)
         .filter(i => i.system?.damage?.dice != null && `${i.system.damage.dice}` !== "");
@@ -490,6 +498,79 @@ const sl = isNpc
         }));
 
       this.addActions(kits, { id: "kits", type: "system" });
+
+      // Consumables (system uses type "enchantment")
+      const consumables = actor.items
+        .filter(i => i.type === "enchantment")
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(item => ({
+          id: `${ACTION_TYPES.ITEM_OPEN}.${item.id}`,
+          name: item.name,
+          img: item.img,
+          encodedValue: `${ACTION_TYPES.ITEM_OPEN}|${item.id}`
+        }));
+
+      this.addActions(consumables, { id: "consumables", type: "system" });
+
+      // Miscellaneous (system uses type "miscellaneus")
+      const miscellaneous = actor.items
+        .filter(i => i.type === "miscellaneous")
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(item => ({
+          id: `${ACTION_TYPES.ITEM_OPEN}.${item.id}`,
+          name: item.name,
+          img: item.img,
+          encodedValue: `${ACTION_TYPES.ITEM_OPEN}|${item.id}`
+        }));
+
+      this.addActions(miscellaneous, { id: "miscellaneous", type: "system" });      
     }
+
+    // -----------------------------
+    // Sorcery
+    // -----------------------------
+
+    _addSorcery(actor) {
+      const WJ = "\u2060"; // Word Joiner (prevents line breaks)
+
+      // Spells: left-click casts, right-click opens sheet
+      const spells = actor.items
+        .filter(i => i.type === "spell")
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(item => ({
+          id: `${ACTION_TYPES.SPELL_CAST}.${item.id}`,
+          name: item.name,
+          img: item.img,
+          encodedValue: `${ACTION_TYPES.SPELL_CAST}|${item.id}`
+        }));
+
+      this.addActions(spells, { id: "spells", type: "system" });
+
+      // Petty Enchantments: attack action lives in Sorcery (not Combat).
+      // Enchantments are also listed in Inventory as Consumables (sheet parity).
+      const pettyEnchantments = actor.items
+        .filter(i => i.type === "enchantment")
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(item => {
+          const dmg = item.system?.damage?.dice ?? "";
+          const info2 = dmg ? `${localize("TAH.Conan2d20.DamageShort", "Dmg")}${WJ}${dmg}` : "";
+
+          return {
+            id: `${ACTION_TYPES.WEAPON_USE}.${item.id}`,
+            name: item.name,
+            img: item.img,
+            info2: info2 ? { text: info2 } : null,
+            tooltip:
+              item.system?.tooltip?.value ??
+              item.system?.tooltip ??
+              item.system?.description?.value ??
+              item.system?.description ??
+              "",
+            encodedValue: `${ACTION_TYPES.WEAPON_USE}|${item.id}`
+          };
+        });
+
+      this.addActions(pettyEnchantments, { id: "petty-enchantments", type: "system" });
+    }    
   };
 });

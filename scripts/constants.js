@@ -4,6 +4,7 @@ export const REQUIRED_CORE_MODULE_VERSION = "2.0.16";
 export const ACTION_TYPES = {
   SKILL_ROLL: "skill.roll",
   WEAPON_USE: "weapon.use",
+  SPELL_CAST: "spell.cast",
   ITEM_OPEN: "item.open",
   ITEM_TOGGLE_EQUIP: "item.toggleEquip",
   ACTION_POST: "action.post",
@@ -18,6 +19,7 @@ export const SETTING_KEYS = {
   SHOW_ACTIONS_TAB: "showActionsTab",
   SHOW_TALENTS_TAB: "showTalentsTab",
   SHOW_INVENTORY_TAB: "showInventoryTab",
+  SHOW_SORCERY_TAB: "showSorceryTab",
   ONLY_EQUIPPED_WEAPONS: "onlyEquippedWeapons",
   CHAT_POST_MODE: "chatPostMode"
 };

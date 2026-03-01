@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.0.4] - 2026-03-01
+
+### Added
+- Inventory tab now also lists:
+  - **Consumables** (items of type `enchantment`).
+  - **Miscellaneous** (items of type `miscellaneous`, with legacy compatibility for `miscellaneus`).
+- Added a new **Sorcery** tab:
+  - **Spells** (type `spell`) with left-click to **Cast Spell**.
+  - **Petty Enchantments** (type `enchantment`) with left-click to **attack/use** (mirrors the actor sheet behavior).
+- Added combat safety warning when attempting turn management before the encounter starts:
+  - “Combat has not started yet. Click "Begin Encounter".” / “Aún no ha empezado el combate. Pulsa "Comenzar Encuentro".”
+
+### Changed
+- **Enchantments** no longer appear as attacks in the **Combat** tab; their attack/use action is now shown under **Sorcery** instead.
+- Turn management actions (**Claim/Seize Turn** and manual **Turn Completed** toggle) are blocked while combat is at **round 0** (before “Begin Encounter”).
+
 ## [0.0.3] - 2026-03-01
 
 ### Added
@@ -20,7 +36,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
   - Added warnings for edge cases:
     - “All combatants have already acted this round.”
     - “No combatant has acted yet this round.”
-- **Momentum reimbursement** when moving to a previous round (via **Previous Round**), including a chat message:
+- **Momentum reimbursement** when moving to a previous round (via **Previous Round** and only if the checkbox Momentum/Doom is checked in system settings), including a chat message:
   - “Momentum Point Reimbursed”.
 
 ### Changed

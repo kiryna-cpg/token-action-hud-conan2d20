@@ -79,7 +79,12 @@ function _buildDefaults() {
     { id: "talents-other", name: game.i18n.localize("TAH.Conan2d20.Talents.Other"), type: "system" },
 
     { id: "armor", name: localize("TAH.Armor", "Armor"), type: "system" },
-    { id: "kits", name: localize("TAH.Kits", "Kits"), type: "system" }
+    { id: "kits", name: localize("TAH.Kits", "Kits"), type: "system" },
+    { id: "consumables", name: localize("TAH.Consumables", "Consumables"), type: "system" },
+    { id: "miscellaneous", name: localize("TAH.Miscellaneous", "Miscellaneous"), type: "system" },
+
+    { id: "spells", name: localize("TAH.Spells", "Spells"), type: "system" },
+    { id: "petty-enchantments", name: localize("TAH.PettyEnchantments", "Petty Enchantments"), type: "system" }
   ].map((g) => ({
     ...g,
     listName: `Group: ${g.name}`
@@ -137,7 +142,18 @@ function _buildDefaults() {
       name: localize("TAH.Inventory", "Inventory"),
       groups: [
         { ...byId["armor"], nestId: "inventory_armor" },
-        { ...byId["kits"], nestId: "inventory_kits" }
+        { ...byId["kits"], nestId: "inventory_kits" },
+        { ...byId["consumables"], nestId: "inventory_consumables" },
+        { ...byId["miscellaneous"], nestId: "inventory_miscellaneous" }
+      ]
+    },
+    {
+      nestId: "sorcery",
+      id: "sorcery",
+      name: localize("TAH.Sorcery", "Sorcery"),
+      groups: [
+        { ...byId["spells"], nestId: "sorcery_spells" },
+        { ...byId["petty-enchantments"], nestId: "sorcery_petty-enchantments" }
       ]
     }
   ];

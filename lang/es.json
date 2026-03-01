@@ -27,7 +27,8 @@
   "TAH.Setting.ShowInventoryTab.Name": "Mostrar pestaña de Inventario",
 
   "TAH.Setting.OnlyEquippedWeapons.Name": "Mostrar solo armas equipadas",
-
+  "TAH.Conan2d20.Setting.ShowSorceryTab.Name": "Mostrar pestaña de Hechicería",
+  "TAH.Conan2d20.Setting.ShowSorceryTab.Hint": "Muestra u oculta la pestaña de Hechicería (Hechizos y Encantamientos menores).",
   "TAH.Setting.ChatPostMode.Name": "Modo de publicación en chat",
   "TAH.Setting.ChatPostMode.Full": "Descripción completa",
   "TAH.Setting.ChatPostMode.TitleOnly": "Solo título",
@@ -85,5 +86,6 @@
   "TAH.Conan2d20.TurnNotCompleted": "Turno no completado",
   "TAH.Conan2d20.RoundConfirmPendingTitle": "Combatientes que aún no han actuado:",
   "TAH.Conan2d20.PreviousTurnNoneActedThisRound": "Ningún combatiente ha actuado aún esta Ronda.",
-  "TAH.Conan2d20.NextTurnAllActed": "Todos los combatientes han actuado ya esta Ronda."
+  "TAH.Conan2d20.NextTurnAllActed": "Todos los combatientes han actuado ya esta Ronda.",
+  "TAH.Conan2d20.CombatNotStarted": "Aún no ha empezado el combate. Pulsa \"Comenzar Encuentro\"."
 }
