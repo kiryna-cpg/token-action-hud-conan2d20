@@ -4,6 +4,41 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.0.3] - 2026-03-01
+
+### Added
+- Full integration with **CombatTracker2d20V2** using Foundry v13 HTML hook variants (`renderCombatTrackerHTML` / `renderCombatTracker2d20V2HTML`) to avoid jQuery-dependent behavior.
+- Persistent **Turn Completed** handling for the Conan system tracker:
+  - Manual toggle (`toggleCombatantTurnDone`) now writes system flags (`flags.conan2d20.turnDone` and `flags.conan2d20.turnCompleted`).
+  - Tracker icon is styled consistently via module CSS classes.
+- **Next Round** GM confirmation when not all combatants have completed their turn:
+  - Cancel keeps the current round and prevents any premature metacurrency changes.
+  - Confirm advances the round normally.
+- Enhanced tracker navigation:
+  - **Next Turn** cycles through combatants who have **not acted** (Turn not completed), in order, wrapping around.
+  - **Previous Turn** cycles through combatants who have **acted** (Turn completed), in reverse order, wrapping around.
+  - Added warnings for edge cases:
+    - “All combatants have already acted this round.”
+    - “No combatant has acted yet this round.”
+- **Momentum reimbursement** when moving to a previous round (via **Previous Round**), including a chat message:
+  - “Momentum Point Reimbursed”.
+
+### Changed
+- **Claim Turn / Seize Turn** now fully synchronizes with the system’s Turn Completed state:
+  - Claim/Seize marks the Conan tracker toggle as completed immediately and applies consistent styling.
+  - Manual unmarking resets completion state accordingly.
+- **Claim Turn** now posts a chat message (matching Seize Turn behavior).
+- HUD Combat layout:
+  - Claim/Seize Turn is now placed at the **top of Combat** by prepending into the existing `attacks-melee` group.
+  - The melee group is created during combat even if the actor has no melee weapons, ensuring Claim/Seize is always visible.
+
+### Fixed
+- Fixed Turn Completed manual toggle not updating state (and therefore not affecting Claim/Seize gating or round validation).
+- Fixed metacurrency timing when attempting to advance rounds:
+  - Prevented system handlers from firing when the module confirmation takes control, ensuring Momentum is only impacted when the round actually advances.
+- Fixed completion state carrying over between rounds:
+  - On round change, all combatants’ completion flags are reset (system flags and module sync flag).
+
 ## [0.0.2] - 2026-02-27
 
 ### Added

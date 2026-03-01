@@ -21,7 +21,6 @@ Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
 
     /** @override */
     getAvailableRollHandlers() {
-      // Single default roll handler for now.
       return [{ id: "default", name: "Default" }];
     }
 
@@ -54,24 +53,39 @@ Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
 });
 
 function _buildDefaults() {
+  // Groups must exist as first-class entries. Layout references these group IDs.
   const groups = [
     { id: "attacks-melee", name: localize("TAH.Melee", "Melee"), type: "system" },
     { id: "attacks-ranged", name: localize("TAH.Ranged", "Ranged"), type: "system" },
     { id: "combat-utility", name: localize("TAH.Utility", "Utility"), type: "system" },
+    { id: "defensive-rolls", name: game.i18n.localize("TAH.Conan2d20.DefensiveRolls"), type: "system" },
+    { id: "special-abilities", name: game.i18n.localize("TAH.Conan2d20.SpecialAbilities"), type: "system" },
 
     { id: "skills", name: localize("TAH.SkillTests", "Skill Tests"), type: "system" },
 
-    { id: "actions", name: localize("TAH.Actions", "Actions"), type: "system" },
-    { id: "talents", name: localize("TAH.Talents", "Talents"), type: "system" },
+    // Actions by type
+    { id: "actions-standard", name: game.i18n.localize("TAH.Conan2d20.Actions.Standard"), type: "system" },
+    { id: "actions-minor", name: game.i18n.localize("TAH.Conan2d20.Actions.Minor"), type: "system" },
+    { id: "actions-reactions", name: game.i18n.localize("TAH.Conan2d20.Actions.Reactions"), type: "system" },
+    { id: "actions-free", name: game.i18n.localize("TAH.Conan2d20.Actions.Free"), type: "system" },
+    { id: "actions-other", name: game.i18n.localize("TAH.Conan2d20.Actions.Other"), type: "system" },
+
+    // Talents by type
+    { id: "talents-bloodline", name: game.i18n.localize("TAH.Conan2d20.Talents.Bloodline"), type: "system" },
+    { id: "talents-caste", name: game.i18n.localize("TAH.Conan2d20.Talents.Caste"), type: "system" },
+    { id: "talents-fortune", name: game.i18n.localize("TAH.Conan2d20.Talents.Fortune"), type: "system" },
+    { id: "talents-homeland", name: game.i18n.localize("TAH.Conan2d20.Talents.Homeland"), type: "system" },
+    { id: "talents-skill", name: game.i18n.localize("TAH.Conan2d20.Talents.Skill"), type: "system" },
+    { id: "talents-other", name: game.i18n.localize("TAH.Conan2d20.Talents.Other"), type: "system" },
 
     { id: "armor", name: localize("TAH.Armor", "Armor"), type: "system" },
     { id: "kits", name: localize("TAH.Kits", "Kits"), type: "system" }
-  ].map(g => ({
+  ].map((g) => ({
     ...g,
     listName: `Group: ${g.name}`
   }));
 
-  const byId = Object.fromEntries(groups.map(g => [g.id, g]));
+  const byId = Object.fromEntries(groups.map((g) => [g.id, g]));
 
   const layout = [
     {
@@ -81,6 +95,8 @@ function _buildDefaults() {
       groups: [
         { ...byId["attacks-melee"], nestId: "combat_attacks-melee" },
         { ...byId["attacks-ranged"], nestId: "combat_attacks-ranged" },
+        { ...byId["defensive-rolls"], nestId: "combat_defensive-rolls" },
+        { ...byId["special-abilities"], nestId: "combat_special-abilities" },
         { ...byId["combat-utility"], nestId: "combat_combat-utility" }
       ]
     },
@@ -94,13 +110,26 @@ function _buildDefaults() {
       nestId: "actions",
       id: "actions",
       name: localize("TAH.Actions", "Actions"),
-      groups: [{ ...byId["actions"], nestId: "actions_actions" }]
+      groups: [
+        { ...byId["actions-standard"], nestId: "actions_actions-standard" },
+        { ...byId["actions-minor"], nestId: "actions_actions-minor" },
+        { ...byId["actions-reactions"], nestId: "actions_actions-reactions" },
+        { ...byId["actions-free"], nestId: "actions_actions-free" },
+        { ...byId["actions-other"], nestId: "actions_actions-other" }
+      ]
     },
     {
       nestId: "talents",
       id: "talents",
       name: localize("TAH.Talents", "Talents"),
-      groups: [{ ...byId["talents"], nestId: "talents_talents" }]
+      groups: [
+        { ...byId["talents-bloodline"], nestId: "talents_talents-bloodline" },
+        { ...byId["talents-caste"], nestId: "talents_talents-caste" },
+        { ...byId["talents-fortune"], nestId: "talents_talents-fortune" },
+        { ...byId["talents-homeland"], nestId: "talents_talents-homeland" },
+        { ...byId["talents-skill"], nestId: "talents_talents-skill" },
+        { ...byId["talents-other"], nestId: "talents_talents-other" }
+      ]
     },
     {
       nestId: "inventory",
