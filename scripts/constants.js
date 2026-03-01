@@ -8,7 +8,8 @@ export const ACTION_TYPES = {
   ITEM_TOGGLE_EQUIP: "item.toggleEquip",
   ACTION_POST: "action.post",
   TALENT_POST: "talent.post",
-  INIT_ROLL: "init.roll",
+  TURN_CLAIM: "turn.claim",
+  TURN_SEIZE: "turn.seize",
   BUY_DICE: "roll.buyDice"
 };
 

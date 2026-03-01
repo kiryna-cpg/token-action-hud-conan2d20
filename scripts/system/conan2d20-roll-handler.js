@@ -104,11 +104,68 @@ Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
         return this._postItemToChat(item);
         }
 
-        case ACTION_TYPES.INIT_ROLL: {
-        if (typeof actor.rollInitiative === "function") return actor.rollInitiative();
-        if (actor?.token?.combatant) return actor.token.combatant.rollInitiative();
-        return;
-        }
+case ACTION_TYPES.TURN_CLAIM: {
+  const alreadyDone = await this._isTurnDone(actor);
+  if (alreadyDone) {
+    ui.notifications.warn(game.i18n.format("TAH.Conan2d20.TurnAlreadyDone", { name: actor.name }));
+    return;
+  }
+
+  const c = await this._setCombatTurnToActor(actor);
+
+  // Post chat (Claim Turn)
+  const msg = game.i18n.format("TAH.Conan2d20.ClaimTurnChat", { name: actor.name });
+  ui.notifications.info(msg);
+  await ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: msg
+  });
+
+  // Mark system toggle (source of truth)
+  await this._setTurnDone(actor, true, c);
+  await ui.combat?.render?.();
+  return;
+}
+
+case ACTION_TYPES.TURN_SEIZE: {
+
+    const alreadyDone = await this._isTurnDone(actor);
+  if (alreadyDone) {
+    ui.notifications.warn(game.i18n.format("TAH.Conan2d20.TurnAlreadyDone", { name: actor.name }));
+    return;
+  }
+
+  // Seize turn requires Doom. If none is available, do nothing (GM warning only).
+  const currentDoom = this._getCurrentDoom();
+  if (currentDoom === 0) {
+    if (game.user?.isGM) ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.NoDoomAvailable"));
+    return;
+  }
+
+  // If Doom tracker isn't found, fall back to the old behavior (warn).
+  if (currentDoom == null) {
+    ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.DoomNotFound"));
+    return;
+  }
+
+  const spent = await this._spendDoom(1);
+  if (!spent) {
+    if (game.user?.isGM) ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.NoDoomAvailable"));
+    return;
+  }
+
+  const msg = game.i18n.format("TAH.Conan2d20.SeizeTurnChat", { name: actor.name });
+  ui.notifications.warn(msg);
+  await ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: msg
+  });
+const c = await this._setCombatTurnToActor(actor);
+// ... gastar doom OK ...
+await this._setTurnDone(actor, true, c);
+await ui.combat?.render?.();
+return;
+}
 
         default:
         return;
@@ -192,5 +249,128 @@ Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
       const next = Math.max(0, current - dice);
       await actor.update({ [path]: next });
     }
+    async _setCombatTurnToActor(actor) {
+  const combat = game.combat;
+  if (!combat) {
+    ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.NoActiveCombat"));
+    return;
+  }
+
+  // Prefer the controlled/active token if available.
+  const token =
+    this.token ??
+    actor.getActiveTokens?.(true, true)?.[0] ??
+    actor.getActiveTokens?.()?.[0] ??
+    null;
+
+  if (!token) {
+    ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.NoActiveToken"));
+    return;
+  }
+
+  const combatant =
+    token.combatant ??
+    combat.combatants?.find(c => c.tokenId === token.id) ??
+    null;
+
+  if (!combatant) {
+    ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.NoCombatant"));
+    return;
+  }
+
+  const idx = combat.turns?.findIndex(t => t.id === combatant.id) ?? -1;
+  if (idx < 0) {
+    ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.NoCombatant"));
+    return;
+  }
+
+await combat.update({ turn: idx });
+
+// Ensure combat.combatant is updated in the next tick (system trackers may update asynchronously)
+await new Promise((r) => setTimeout(r, 0));
+
+return combat.combatant ?? combat.turns?.[idx] ?? null;
+}
+
+_getDoomInput() {
+  return document?.querySelector?.('input.input-doom[data-type="doom"]') ?? null;
+}
+
+_getCurrentDoom() {
+  const doomInput = this._getDoomInput();
+  if (!doomInput) return null;
+  const current = Number(doomInput.value ?? 0);
+  return Number.isFinite(current) ? current : null;
+}
+
+async _spendDoom(amount) {
+  const a = Number(amount ?? 0);
+  if (!a) return false;
+
+  // Preferred: spend Doom via the system UI input (deterministic if the tracker is rendered)
+  const doomInput = this._getDoomInput();
+  if (doomInput) {
+    const current = Number(doomInput.value ?? 0);
+    if (!Number.isFinite(current) || current <= 0) return false;
+
+    const next = Math.max(0, current - a);
+
+    doomInput.value = String(next);
+    doomInput.dispatchEvent(new Event("input", { bubbles: true }));
+    doomInput.dispatchEvent(new Event("change", { bubbles: true }));
+    return true;
+  }
+
+  // If tracker isn't available, we can't spend deterministically here.
+  return false;
+}
+
+async _isTurnDone(actor) {
+  const combat = game.combat;
+  if (!combat) return false;
+
+  const token =
+    this.token ??
+    actor.getActiveTokens?.(true, true)?.[0] ??
+    actor.getActiveTokens?.()?.[0] ??
+    null;
+
+  const combatant =
+    token?.combatant ??
+    combat.combatants?.find(c => c.tokenId === token?.id) ??
+    combat.combatants?.find(c => c.actorId === actor.id) ??
+    null;
+
+  if (!combatant) return false;
+
+  // System is the source of truth
+  const sysDone = combatant.getFlag("conan2d20", "turnDone");
+  const sysCompleted = combatant.getFlag("conan2d20", "turnCompleted");
+  if (sysDone != null || sysCompleted != null) return !!(sysDone ?? sysCompleted);
+
+  // Fallback to our module flag
+  return !!combatant.getFlag(MODULE_ID, "turnDone");
+}
+
+async _setTurnDone(actor, done, combatantOverride = null) {
+  const combat = game.combat;
+  if (!combat) return;
+
+  const combatant = combatantOverride ?? combat.combatant;
+  if (!combatant) return;
+
+  const v = !!done;
+
+  // System flags (source of truth for the tracker toggle)
+  await combatant.setFlag("conan2d20", "turnDone", v);
+  await combatant.setFlag("conan2d20", "turnCompleted", v);
+
+  // Keep module logic in sync
+  await combatant.setFlag(MODULE_ID, "turnDone", v);
+
+  try {
+    await ui.combat?.render?.();
+  } catch (_e) {}
+}
   };
 });

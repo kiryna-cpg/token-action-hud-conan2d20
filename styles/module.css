@@ -1,0 +1,18 @@
+/* token-action-hud-conan2d20: combat turn completion marker */
+
+/* Done (green) */
+.tahc2d20-turn-done,
+.tahc2d20-turn-done i {
+  color: var(--color-level-success, #2ecc71) !important;
+}
+
+/* Not done: keep tracker/theme defaults */
+.tahc2d20-turn-not-done,
+.tahc2d20-turn-not-done i {
+  color: inherit;
+}
+
+/* Conan tracker specific: icon lives inside the row */
+li.tahc2d20-turn-done .token-turn-completed i {
+  color: var(--color-level-success, #2ecc71) !important;
+}
