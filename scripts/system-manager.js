@@ -49,7 +49,7 @@ Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
     SystemManager
   };
 
-  Hooks.call("tokenActionHudSystemReady", module);
+  Hooks.callAll("tokenActionHudSystemReady", module);
 });
 
 function _buildDefaults() {
