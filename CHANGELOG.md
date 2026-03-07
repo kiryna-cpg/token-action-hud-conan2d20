@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.0.5] - 2026-03-07
+
+### Fixed
+- Fixed a sporadic console message on module load (Token Action HUD | 0) by avoiding hook calls that return a numeric listener count when no handlers are registered (switched to Hooks.callAll for the system-ready hook dispatch).
+
+
 ## [0.0.4] - 2026-03-01
 
 ### Added
