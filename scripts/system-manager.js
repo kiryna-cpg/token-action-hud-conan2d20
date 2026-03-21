@@ -1,12 +1,24 @@
 import { MODULE_ID, REQUIRED_CORE_MODULE_VERSION } from "./constants.js";
 import { ActionHandler } from "./action-handler.js";
-import { Conan2d20RollHandler } from "./system/conan2d20-roll-handler.js";
+import { Conan2d20RollHandler, initConan2d20RollHandler } from "./system/conan2d20-roll-handler.js";
 import { registerSettings } from "./settings.js";
 import { localize } from "./util/i18n.js";
 
 export let SystemManager = null;
 
-Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
+let _registered = false;
+
+/**
+ * Register this system module with Token Action HUD Core.
+ * This function is idempotent and safe to call multiple times.
+ */
+function _registerWithCore(coreModule) {
+  if (_registered) return;
+  if (!coreModule?.api?.SystemManager) return;
+
+  // Ensure RollHandler class exists before Core tries to fetch it
+  initConan2d20RollHandler(coreModule);
+
   // Define SystemManager only after Core API is ready
   SystemManager = class SystemManager extends coreModule.api.SystemManager {
     /** @override */
@@ -40,7 +52,6 @@ Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
     }
   };
 
-  // Register the system module with Core AFTER SystemManager is defined.
   const module = game.modules.get(MODULE_ID);
   if (!module) return;
 
@@ -49,7 +60,23 @@ Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
     SystemManager
   };
 
+  _registered = true;
+
+  // Notify Core that the system is ready
   Hooks.callAll("tokenActionHudSystemReady", module);
+}
+
+// Normal path: Core emits this when its API is ready
+Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
+  _registerWithCore(coreModule);
+});
+
+// Fallback: if our module loads after Core already emitted the hook,
+// Core API may already be present on the module instance.
+Hooks.once("init", () => {
+  const core = game.modules.get("token-action-hud-core");
+  if (!core?.active) return;
+  if (core.api) _registerWithCore(core);
 });
 
 function _buildDefaults() {
@@ -158,5 +185,5 @@ function _buildDefaults() {
     }
   ];
 
-  return { layout, groups };
+  return { groups, layout };
 }

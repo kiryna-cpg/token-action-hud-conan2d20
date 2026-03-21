@@ -140,10 +140,14 @@ Hooks.once("ready", () => {
           ? `<p><strong>${listTitle}</strong></p><ul>${pending.map((n) => `<li>${n}</li>`).join("")}</ul>`
           : "";
 
-        const confirmed = await Dialog.confirm({
-          title: game.i18n.localize("TAH.Conan2d20.RoundConfirmTitle"),
+        const confirmed = await foundry.applications.api.DialogV2.confirm({
+          window: { title: game.i18n.localize("TAH.Conan2d20.RoundConfirmTitle") },
           content: `<p>${intro}</p>${listHtml}`,
-          defaultYes: false
+          modal: true,
+          rejectClose: false,
+          // Match previous defaultYes: false (default to "No")
+          yes: { default: false },
+          no: { default: true }
         });
 
         if (!confirmed) return;
@@ -278,6 +282,10 @@ Hooks.once("ready", () => {
       const handleNextRoundOnce = async (ev) => {
         const now = Date.now();
         if (now - lastNextRoundAt < 400) return;
+
+        // Only throttle when we're actually handling a nextRound interaction
+        if (!isNextRoundBtn(ev.target)) return;
+
         lastNextRoundAt = now;
         return handleNextRound(ev);
       };

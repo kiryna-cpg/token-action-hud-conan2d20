@@ -2,7 +2,10 @@ import { ACTION_TYPES, MODULE_ID, SETTING_KEYS, CHAT_POST_MODES } from "../const
 
 export let Conan2d20RollHandler = null;
 
-Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
+export function initConan2d20RollHandler(coreModule) {
+  if (Conan2d20RollHandler) return;
+  if (!coreModule?.api?.RollHandler) return;
+
   Conan2d20RollHandler = class Conan2d20RollHandler extends coreModule.api.RollHandler {
     /** @override */
     async handleActionClick(event, encodedValue) {
@@ -406,4 +409,15 @@ async _setTurnDone(actor, done, combatantOverride = null) {
   } catch (_e) {}
 }
   };
+}
+
+Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
+  initConan2d20RollHandler(coreModule);
+});
+
+// Fallback in case our module loads after the hook already fired
+Hooks.once("init", () => {
+  const core = game.modules.get("token-action-hud-core");
+  if (!core?.active) return;
+  if (core.api) initConan2d20RollHandler(core);
 });

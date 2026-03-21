@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.0.6] - 2026-03-21
+
+### Fixed
+- Fixed an intermittent initialization race condition with Token Action HUD Core that could log Token Action HUD | 0 during startup:
+  - Ensured the Conan2d20 RollHandler is initialized idempotently and before the system module announces readiness to the Core API.
+  - Added a fallback initialization path for cases where the Core API hook fires before the module registers its listener (load-order dependent).
+
 ## [0.0.5] - 2026-03-07
 
 ### Fixed
