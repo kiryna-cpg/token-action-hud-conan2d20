@@ -159,12 +159,12 @@ export function initConan2d20RollHandler(coreModule) {
 
         case ACTION_TYPES.ACTION_POST: {
           const itemId = parts[1];
-          return this._postItemToChat(actor, itemId, CHAT_POST_MODES.ACTIONS);
+          return this._postItemToChat(actor, itemId);
         }
 
         case ACTION_TYPES.TALENT_POST: {
           const itemId = parts[1];
-          return this._postItemToChat(actor, itemId, CHAT_POST_MODES.TALENTS);
+          return this._postItemToChat(actor, itemId);
         }
 
         default:
@@ -172,8 +172,127 @@ export function initConan2d20RollHandler(coreModule) {
       }
     }
 
-    // --- keep your existing private helpers below (unchanged) ---
-    // (I’m not rewriting them here; paste the rest of your current file content below this point.)
+    // -----------------------------
+    // Helpers
+    // -----------------------------
+
+    renderItem(actor, itemId) {
+      const item = actor?.items?.get(itemId);
+      return item?.sheet?.render(true);
+    }
+
+    async _setCombatTurnToActor(actor) {
+      const combat = game.combat;
+      if (!combat) return null;
+
+      const token =
+        this.token ??
+        actor.getActiveTokens?.(true, true)?.[0] ??
+        actor.getActiveTokens?.()?.[0] ??
+        null;
+
+      const combatant =
+        token?.combatant ??
+        combat.combatants?.find((c) => c.tokenId === token?.id) ??
+        combat.combatants?.find((c) => c.actorId === actor.id) ??
+        null;
+
+      if (!combatant) return null;
+
+      const turns = combat.turns ?? [];
+      const idx = turns.findIndex((t) => t?.id === combatant.id);
+      if (idx >= 0) {
+        await combat.update({ turn: idx });
+      }
+
+      return combatant;
+    }
+
+    async _isTurnDone(actor) {
+      const combat = game.combat;
+      if (!combat) return false;
+
+      const token =
+        this.token ??
+        actor.getActiveTokens?.(true, true)?.[0] ??
+        actor.getActiveTokens?.()?.[0] ??
+        null;
+
+      const combatant =
+        token?.combatant ??
+        combat.combatants?.find((c) => c.tokenId === token?.id) ??
+        combat.combatants?.find((c) => c.actorId === actor.id) ??
+        null;
+
+      if (!combatant) return false;
+
+      // System is the source of truth
+      const sysDone = combatant.getFlag("conan2d20", "turnDone");
+      const sysCompleted = combatant.getFlag("conan2d20", "turnCompleted");
+      if (sysDone != null || sysCompleted != null) return !!(sysDone ?? sysCompleted);
+
+      // Fallback to our module flag
+      return !!combatant.getFlag(MODULE_ID, "turnDone");
+    }
+
+    async _setTurnDone(_actor, done, combatantOverride = null) {
+      const combat = game.combat;
+      if (!combat) return;
+
+      const combatant = combatantOverride ?? combat.combatant;
+      if (!combatant) return;
+
+      const v = !!done;
+
+      // System flags (source of truth for the tracker toggle)
+      await combatant.setFlag("conan2d20", "turnDone", v);
+      await combatant.setFlag("conan2d20", "turnCompleted", v);
+
+      // Keep module logic in sync
+      await combatant.setFlag(MODULE_ID, "turnDone", v);
+    }
+
+    async _applyStressCost(actor, skillKey, dice) {
+      // House-rule: spend Vigor for physical checks, Resolve for mental checks.
+      // Try to infer attribute from system data; fallback to Resolve.
+      const attr =
+        actor.system?.skills?.[skillKey]?.attribute ??
+        actor.system?.skills?.[skillKey]?.attr ??
+        null;
+
+      const physical = new Set(["agility", "awareness", "brawn", "coordination"]);
+      const pool = physical.has(String(attr).toLowerCase()) ? "vigor" : "resolve";
+
+      const path = pool === "vigor" ? "system.vigor.value" : "system.resolve.value";
+      const cur = Number(foundry.utils.getProperty(actor, path) ?? 0);
+      const next = Math.max(0, cur - dice);
+
+      await actor.update({ [path]: next });
+    }
+
+    async _postItemToChat(actor, itemId) {
+      const item = actor.items.get(itemId);
+      if (!item) return;
+
+      const mode = game.settings.get(MODULE_ID, SETTING_KEYS.CHAT_POST_MODE);
+
+      if (mode === CHAT_POST_MODES.FULL && typeof item.toChat === "function") {
+        return item.toChat();
+      }
+
+      const title = `<h3>${foundry.utils.escapeHTML(item.name ?? "")}</h3>`;
+      const desc =
+        item.system?.description?.value ??
+        item.system?.description ??
+        item.system?.tooltip?.value ??
+        item.system?.tooltip ??
+        "";
+
+      return ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor }),
+        content: `${title}${mode === CHAT_POST_MODES.FULL ? desc : ""}`
+      });
+    }
   };
 }
 
