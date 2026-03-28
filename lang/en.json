@@ -39,6 +39,7 @@
   "TAH.Conan2d20.SLShort": "SL",
   "TAH.Conan2d20.ReachShort": "Rch",
   "TAH.Conan2d20.DamageShort": "Dmg",
+  "TAH.Conan2d20.RollHandlers.Core": "Core Conan 2d20",  
 
   "TAH.Conan2d20.Actions.Standard": "Standard Actions",
   "TAH.Conan2d20.Actions.Minor": "Minor Actions",

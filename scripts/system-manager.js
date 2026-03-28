@@ -9,12 +9,51 @@ export let SystemManager = null;
 let _apiPrepared = false;
 let _systemReadyAnnounced = false;
 
+function _getRollHandlerChoices() {
+  return {
+    core: localize("TAH.Conan2d20.RollHandlers.Core", "Core Conan 2d20")
+  };
+}
+
 function _isCoreApiReady(coreModule) {
   return !!(
     coreModule?.api?.SystemManager &&
     coreModule?.api?.ActionHandler &&
     coreModule?.api?.RollHandler
   );
+}
+
+/**
+ * Repair invalid TAH Core roll handler values left by older companion builds.
+ * This is mainly needed for worlds where the setting was persisted as `0`.
+ */
+async function _repairCoreRollHandlerSetting() {
+  const coreModuleId = "token-action-hud-core";
+  const settingKey = "rollHandler";
+
+  if (!game.modules.get(coreModuleId)?.active) return;
+
+  let current;
+  try {
+    current = game.settings.get(coreModuleId, settingKey);
+  } catch (_err) {
+    return;
+  }
+
+  const currentKey = String(current ?? "");
+  const validChoices = _getRollHandlerChoices();
+
+  const isValid =
+    currentKey === "core" ||
+    Object.prototype.hasOwnProperty.call(validChoices, currentKey) ||
+    !!game.modules.get(currentKey)?.active;
+
+  if (isValid) return;
+
+  if (!game.user?.isGM) return;
+
+  console.warn(`${MODULE_ID} | Repairing invalid Token Action HUD Core rollHandler setting: ${currentKey}`);
+  await game.settings.set(coreModuleId, settingKey, "core");
 }
 
 /**
@@ -41,7 +80,9 @@ function _prepareCompanionApi(coreModule) {
     }
 
     /** @override */
-    getRollHandler() {
+    getRollHandler(rollHandlerId = "core") {
+      if (rollHandlerId !== "core") return null;
+
       if (!Conan2d20RollHandler) {
         throw new Error(`${MODULE_ID} | RollHandler not initialized`);
       }
@@ -50,7 +91,7 @@ function _prepareCompanionApi(coreModule) {
 
     /** @override */
     getAvailableRollHandlers() {
-      return [{ id: "default", name: "Default" }];
+      return _getRollHandlerChoices();
     }
 
     /** @override */
@@ -105,7 +146,7 @@ Hooks.once("tokenActionHudCoreApiReady", (coreModule) => {
 
 // Announce readiness only once the world is fully ready.
 // This avoids re-entrant HUD construction during Core startup.
-Hooks.once("ready", () => {
+Hooks.once("ready", async () => {
   const core = game.modules.get("token-action-hud-core");
   if (!core?.active) return;
 
@@ -117,6 +158,7 @@ Hooks.once("ready", () => {
     }
   }
 
+  await _repairCoreRollHandlerSetting();
   _announceSystemReady();
 });
 

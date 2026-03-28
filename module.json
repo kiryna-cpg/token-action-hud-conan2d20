@@ -2,7 +2,7 @@
   "id": "token-action-hud-conan2d20",
   "title": "Token Action HUD - Conan 2d20",
   "description": "Token Action HUD Core companion module for Conan 2d20.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "authors": [
     { "name": "Kiryna" }
   ],
@@ -33,7 +33,7 @@
   ],
   "url": "https://github.com/kiryna-cpg/token-action-hud-conan2d20",
   "manifest": "https://raw.githubusercontent.com/kiryna-cpg/token-action-hud-conan2d20/main/module.json",
-  "download": "https://github.com/kiryna-cpg/token-action-hud-conan2d20/releases/download/0.1.2/token-action-hud-conan2d20.zip",
+  "download": "https://github.com/kiryna-cpg/token-action-hud-conan2d20/releases/download/0.1./token-action-hud-conan2d20.zip",
   "bugs": "https://github.com/kiryna-cpg/token-action-hud-conan2d20/issues",
   "license": "MIT"
 }

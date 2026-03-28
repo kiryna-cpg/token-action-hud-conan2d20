@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.1.3] - 2026-03-28
+
+### Fixed
+- Fixed the intermittent `Token Action HUD | 0` error on startup.
+- Corrected roll handler registration for Token Action HUD Core compatibility.
+- Added automatic repair for invalid persisted roll handler settings left by previous installs or updates.
+
 ## [0.1.2] - 2026-03-28
 
 ### Fixed
