@@ -4,7 +4,14 @@ import { SKILL_LABELS } from "./util/skill-map.js";
 
 export let ActionHandler = null;
 
-Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
+/**
+ * Initialize the ActionHandler class once Core API is available.
+ * Idempotent: safe to call multiple times.
+ */
+export function initActionHandler(coreModule) {
+  if (ActionHandler) return;
+  if (!coreModule?.api?.ActionHandler) return;
+
   ActionHandler = class ActionHandler extends coreModule.api.ActionHandler {
     /** @override */
     async buildSystemActions(_groupIds) {
@@ -571,6 +578,6 @@ const sl = isNpc
         });
 
       this.addActions(pettyEnchantments, { id: "petty-enchantments", type: "system" });
-    }    
+    }
   };
-});
+}

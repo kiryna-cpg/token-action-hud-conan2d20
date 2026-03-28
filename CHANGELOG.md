@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.1.2] - 2026-03-28
+
+### Fixed
+- Hardened the startup registration flow with Token Action HUD Core to mitigate the intermittent `Token Action HUD | 0` console error during module load:
+  - Split companion startup into two phases: prepare the companion API as soon as Core exposes its API, but delay the `tokenActionHudSystemReady` announcement until Foundry reaches `ready`.
+  - Avoided re-entrant HUD construction during Core startup by preventing the system-ready hook from firing inside Core's own API registration call stack.
+  - Kept ActionHandler and RollHandler initialization centralized and idempotent before the companion is announced as ready to Token Action HUD Core.
+
 ## [0.0.6] - 2026-03-21
 
 ### Fixed

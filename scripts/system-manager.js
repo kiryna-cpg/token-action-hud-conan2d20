@@ -1,33 +1,50 @@
 import { MODULE_ID, REQUIRED_CORE_MODULE_VERSION } from "./constants.js";
-import { ActionHandler } from "./action-handler.js";
+import { ActionHandler, initActionHandler } from "./action-handler.js";
 import { Conan2d20RollHandler, initConan2d20RollHandler } from "./system/conan2d20-roll-handler.js";
 import { registerSettings } from "./settings.js";
 import { localize } from "./util/i18n.js";
 
 export let SystemManager = null;
 
-let _registered = false;
+let _apiPrepared = false;
+let _systemReadyAnnounced = false;
+
+function _isCoreApiReady(coreModule) {
+  return !!(
+    coreModule?.api?.SystemManager &&
+    coreModule?.api?.ActionHandler &&
+    coreModule?.api?.RollHandler
+  );
+}
 
 /**
- * Register this system module with Token Action HUD Core.
- * This function is idempotent and safe to call multiple times.
+ * Prepare the companion API once Core exposes its API.
+ * This must be safe to call multiple times.
  */
-function _registerWithCore(coreModule) {
-  if (_registered) return;
-  if (!coreModule?.api?.SystemManager) return;
+function _prepareCompanionApi(coreModule) {
+  if (_apiPrepared) return true;
+  if (!_isCoreApiReady(coreModule)) return false;
 
-  // Ensure RollHandler class exists before Core tries to fetch it
+  // Build all Core-dependent classes from a single place.
+  initActionHandler(coreModule);
   initConan2d20RollHandler(coreModule);
 
-  // Define SystemManager only after Core API is ready
+  if (!ActionHandler || !Conan2d20RollHandler) return false;
+
   SystemManager = class SystemManager extends coreModule.api.SystemManager {
     /** @override */
     getActionHandler() {
+      if (!ActionHandler) {
+        throw new Error(`${MODULE_ID} | ActionHandler not initialized`);
+      }
       return new ActionHandler();
     }
 
     /** @override */
     getRollHandler() {
+      if (!Conan2d20RollHandler) {
+        throw new Error(`${MODULE_ID} | RollHandler not initialized`);
+      }
       return new Conan2d20RollHandler();
     }
 
@@ -53,30 +70,54 @@ function _registerWithCore(coreModule) {
   };
 
   const module = game.modules.get(MODULE_ID);
-  if (!module) return;
+  if (!module) return false;
 
-  module.api = {
-    requiredCoreModuleVersion: REQUIRED_CORE_MODULE_VERSION,
-    SystemManager
-  };
+  module.api ??= {};
+  module.api.requiredCoreModuleVersion = REQUIRED_CORE_MODULE_VERSION;
+  module.api.SystemManager = SystemManager;
 
-  _registered = true;
-
-  // Notify Core that the system is ready
-  Hooks.callAll("tokenActionHudSystemReady", module);
+  _apiPrepared = true;
+  return true;
 }
 
-// Normal path: Core emits this when its API is ready
-Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
-  _registerWithCore(coreModule);
+/**
+ * Announce system readiness only after Foundry reaches ready.
+ * Calling tokenActionHudSystemReady synchronously from inside
+ * tokenActionHudCoreApiReady can re-enter Core while it is still
+ * finishing its own registerApi() call stack.
+ */
+function _announceSystemReady() {
+  if (_systemReadyAnnounced) return false;
+
+  const module = game.modules.get(MODULE_ID);
+  if (!module?.api?.SystemManager) return false;
+
+  _systemReadyAnnounced = true;
+  Hooks.callAll("tokenActionHudSystemReady", module);
+  return true;
+}
+
+// Prepare companion classes as soon as Core API is exposed,
+// but do not announce readiness yet.
+Hooks.once("tokenActionHudCoreApiReady", (coreModule) => {
+  _prepareCompanionApi(coreModule);
 });
 
-// Fallback: if our module loads after Core already emitted the hook,
-// Core API may already be present on the module instance.
-Hooks.once("init", () => {
+// Announce readiness only once the world is fully ready.
+// This avoids re-entrant HUD construction during Core startup.
+Hooks.once("ready", () => {
   const core = game.modules.get("token-action-hud-core");
   if (!core?.active) return;
-  if (core.api) _registerWithCore(core);
+
+  if (!_apiPrepared) {
+    const prepared = _prepareCompanionApi(core);
+    if (!prepared) {
+      console.warn(`${MODULE_ID} | Failed to prepare companion API at ready.`);
+      return;
+    }
+  }
+
+  _announceSystemReady();
 });
 
 function _buildDefaults() {

@@ -295,15 +295,3 @@ export function initConan2d20RollHandler(coreModule) {
     }
   };
 }
-
-// Normal path: Core emits this when its API is ready
-Hooks.once("tokenActionHudCoreApiReady", async (coreModule) => {
-  initConan2d20RollHandler(coreModule);
-});
-
-// Fallback: if our module loads after the hook already fired
-Hooks.once("init", () => {
-  const core = game.modules.get("token-action-hud-core");
-  if (!core?.active) return;
-  if (core.api) initConan2d20RollHandler(core);
-});
