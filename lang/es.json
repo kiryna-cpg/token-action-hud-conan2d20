@@ -5,56 +5,45 @@
   "TAH.Ranged": "A distancia",
   "TAH.Utility": "Utilidad",
   "TAH.Initiative": "Iniciativa",
-
   "TAH.Skills": "Habilidades",
   "TAH.SkillTests": "Pruebas de habilidad",
-
   "TAH.Actions": "Acciones",
   "TAH.Talents": "Talentos",
   "TAH.Inventory": "Inventario",
   "TAH.Armor": "Armadura",
   "TAH.Kits": "Kits",
-
   "TAH.BuyDice1": "+1d20",
   "TAH.BuyDice2": "+2d20",
   "TAH.BuyDice3": "+3d20",
-
   "TAH.Setting.EnableHouseRules.Name": "Activar reglas caseras (Revisión de Habilidades y Metamoneda)",
   "TAH.Setting.EnableHouseRules.Hint": "Aplica ajustes del módulo (p. ej., ocultar Fortune, habilitar compra de dados con estrés).",
-
   "TAH.Setting.ShowActionsTab.Name": "Mostrar pestaña de Acciones",
   "TAH.Setting.ShowTalentsTab.Name": "Mostrar pestaña de Talentos",
   "TAH.Setting.ShowInventoryTab.Name": "Mostrar pestaña de Inventario",
-
   "TAH.Setting.OnlyEquippedWeapons.Name": "Mostrar solo armas equipadas",
   "TAH.Conan2d20.Setting.ShowSorceryTab.Name": "Mostrar pestaña de Hechicería",
   "TAH.Conan2d20.Setting.ShowSorceryTab.Hint": "Muestra u oculta la pestaña de Hechicería (Hechizos y Encantamientos menores).",
   "TAH.Setting.ChatPostMode.Name": "Modo de publicación en chat",
   "TAH.Setting.ChatPostMode.Full": "Descripción completa",
   "TAH.Setting.ChatPostMode.TitleOnly": "Solo título",
-
   "TAH.Conan2d20.Open": "Abrir",
   "TAH.Conan2d20.Equipped": "Equipado",
-  
   "TAH.Conan2d20.TNShort": "TN",
   "TAH.Conan2d20.SLShort": "NH",
   "TAH.Conan2d20.ReachShort": "Alc",
   "TAH.Conan2d20.DamageShort": "Daño",
-  "TAH.Conan2d20.RollHandlers.Core": "Core Conan 2d20",  
-
+  "TAH.Conan2d20.RollHandlers.Core": "Core Conan 2d20",
   "TAH.Conan2d20.Actions.Standard": "Acciones estándar",
   "TAH.Conan2d20.Actions.Minor": "Acciones menores",
   "TAH.Conan2d20.Actions.Reactions": "Reacciones",
   "TAH.Conan2d20.Actions.Free": "Acciones gratuitas",
   "TAH.Conan2d20.Actions.Other": "Otras acciones",
-
   "TAH.Conan2d20.Talents.Bloodline": "Linaje",
   "TAH.Conan2d20.Talents.Caste": "Casta",
   "TAH.Conan2d20.Talents.Fortune": "Fortuna",
   "TAH.Conan2d20.Talents.Homeland": "Patria",
   "TAH.Conan2d20.Talents.Other": "Otros",
   "TAH.Conan2d20.Talents.Skill": "Habilidad",
-
   "TAH.Conan2d20.DefensiveRolls": "Tiradas defensivas",
   "TAH.Conan2d20.Defense.Parry": "Parada (Parry)",
   "TAH.Conan2d20.Defense.Dodge": "Esquiva (Acrobatics)",
@@ -77,7 +66,6 @@
   "TAH.Conan2d20.NPCSkill.cmb": "Combate",
   "TAH.Conan2d20.NPCSkill.frt": "Fortaleza",
   "TAH.Conan2d20.NPCSkill.knw": "Conocimiento",
-
   "TAH.Conan2d20.RoundBlocked": "Deben marcarse todos los turnos antes de avanzar la ronda.",
   "TAH.Conan2d20.TurnAlreadyDone": "{name} ya ha completado su turno.",
   "TAH.Conan2d20.RoundConfirmTitle": "Avanzar ronda",
@@ -88,5 +76,13 @@
   "TAH.Conan2d20.RoundConfirmPendingTitle": "Combatientes que aún no han actuado:",
   "TAH.Conan2d20.PreviousTurnNoneActedThisRound": "Ningún combatiente ha actuado aún esta Ronda.",
   "TAH.Conan2d20.NextTurnAllActed": "Todos los combatientes han actuado ya esta Ronda.",
-  "TAH.Conan2d20.CombatNotStarted": "Aún no ha empezado el combate. Pulsa \"Comenzar Encuentro\"."
+  "TAH.Conan2d20.CombatNotStarted": "Aún no ha empezado el combate. Pulsa \"Comenzar Encuentro\".",
+  "TAH.Consumables": "Consumibles",
+  "TAH.Miscellaneous": "Miscelánea",
+  "TAH.Sorcery": "Hechicería",
+  "TAH.Spells": "Hechizos",
+  "TAH.PettyEnchantments": "Encantamientos menores",
+  "TAH.Conan2d20.MomentumReimbursed": "Punto de Momentum reembolsado",
+  "TAH.Conan2d20.PreviousTurnNoneActedTitle": "Turno anterior",
+  "TAH.Conan2d20.PreviousTurnNoneActedContent": "Ningún combatiente ha actuado esta ronda. ¿Quieres volver a la ronda anterior?"
 }

@@ -5,61 +5,50 @@
   "TAH.Ranged": "Ranged",
   "TAH.Utility": "Utility",
   "TAH.Initiative": "Initiative",
-
   "TAH.Skills": "Skills",
   "TAH.SkillTests": "Skill Tests",
-
   "TAH.Actions": "Actions",
   "TAH.Talents": "Talents",
   "TAH.Inventory": "Inventory",
   "TAH.Armor": "Armor",
   "TAH.Kits": "Kits",
-
   "TAH.BuyDice1": "+1d20",
   "TAH.BuyDice2": "+2d20",
   "TAH.BuyDice3": "+3d20",
-
   "TAH.Setting.EnableHouseRules.Name": "Enable house rules (Skill & Metacurrency Revision)",
   "TAH.Setting.EnableHouseRules.Hint": "Applies module-specific adjustments (e.g., hide Fortune, enable stress dice purchase helpers).",
-
   "TAH.Setting.ShowActionsTab.Name": "Show Actions tab",
   "TAH.Setting.ShowTalentsTab.Name": "Show Talents tab",
   "TAH.Setting.ShowInventoryTab.Name": "Show Inventory tab",
   "TAH.Conan2d20.Setting.ShowSorceryTab.Name": "Show Sorcery Tab",
   "TAH.Conan2d20.Setting.ShowSorceryTab.Hint": "Show or hide the Sorcery tab (Spells and Petty Enchantments).",
   "TAH.Setting.OnlyEquippedWeapons.Name": "Only show equipped weapons",
-
   "TAH.Setting.ChatPostMode.Name": "Chat posting mode",
   "TAH.Setting.ChatPostMode.Full": "Full description",
   "TAH.Setting.ChatPostMode.TitleOnly": "Title only",
-
   "TAH.Conan2d20.Open": "Open",
   "TAH.Conan2d20.Equipped": "Equipped",
   "TAH.Conan2d20.TNShort": "TN",
   "TAH.Conan2d20.SLShort": "SL",
   "TAH.Conan2d20.ReachShort": "Rch",
   "TAH.Conan2d20.DamageShort": "Dmg",
-  "TAH.Conan2d20.RollHandlers.Core": "Core Conan 2d20",  
-
+  "TAH.Conan2d20.RollHandlers.Core": "Core Conan 2d20",
   "TAH.Conan2d20.Actions.Standard": "Standard Actions",
   "TAH.Conan2d20.Actions.Minor": "Minor Actions",
   "TAH.Conan2d20.Actions.Reactions": "Reactions",
   "TAH.Conan2d20.Actions.Free": "Free Actions",
   "TAH.Conan2d20.Actions.Other": "Other Actions",
-
   "TAH.Conan2d20.Talents.Bloodline": "Bloodline",
   "TAH.Conan2d20.Talents.Caste": "Caste",
   "TAH.Conan2d20.Talents.Fortune": "Fortune",
   "TAH.Conan2d20.Talents.Homeland": "Homeland",
   "TAH.Conan2d20.Talents.Other": "Other",
   "TAH.Conan2d20.Talents.Skill": "Skill",
-
   "TAH.Conan2d20.DefensiveRolls": "Defensive Rolls",
   "TAH.Conan2d20.Defense.Parry": "Parry",
   "TAH.Conan2d20.Defense.Dodge": "Dodge (Acrobatics)",
   "TAH.Conan2d20.Defense.Resistance": "Resistance",
   "TAH.Conan2d20.Defense.Discipline": "Discipline",
-
   "TAH.Conan2d20.SpecialAbilities": "Special Abilities",
   "TAH.Conan2d20.DoomSpendShort": "Doom",
   "TAH.Conan2d20.NPCSkill.cmb": "Combat",
@@ -68,7 +57,6 @@
   "TAH.Conan2d20.NPCSkill.mov": "Movement",
   "TAH.Conan2d20.NPCSkill.scl": "Social",
   "TAH.Conan2d20.NPCSkill.sns": "Senses",
-
   "TAH.Conan2d20.ClaimTurn": "CLAIM TURN",
   "TAH.Conan2d20.SeizeTurn": "SEIZE TURN",
   "TAH.Conan2d20.NoActiveCombat": "No active combat.",
@@ -78,7 +66,6 @@
   "TAH.Conan2d20.SeizeTurnChat": "{name} has seized the turn by spending 1 Doom.",
   "TAH.Conan2d20.ClaimTurnChat": "{name} claimed the turn.",
   "TAH.Conan2d20.NoDoomAvailable": "No Doom points available.",
-
   "TAH.Conan2d20.RoundBlocked": "All turns must be completed before advancing the round.",
   "TAH.Conan2d20.TurnAlreadyDone": "{name} has already completed their turn.",
   "TAH.Conan2d20.RoundConfirmTitle": "Advance Round",
@@ -92,5 +79,10 @@
   "TAH.Conan2d20.MomentumReimbursed": "Momentum Point Reimbursed",
   "TAH.Conan2d20.PreviousTurnNoneActedThisRound": "No combatant has acted yet this round.",
   "TAH.Conan2d20.NextTurnAllActed": "All combatants have already acted this round.",
-  "TAH.Conan2d20.CombatNotStarted": "Combat has not started yet. Click \"Begin Encounter\"."
+  "TAH.Conan2d20.CombatNotStarted": "Combat has not started yet. Click \"Begin Encounter\".",
+  "TAH.Consumables": "Consumables",
+  "TAH.Miscellaneous": "Miscellaneous",
+  "TAH.Sorcery": "Sorcery",
+  "TAH.Spells": "Spells",
+  "TAH.PettyEnchantments": "Petty Enchantments"
 }

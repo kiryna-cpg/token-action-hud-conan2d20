@@ -1,4 +1,5 @@
 import { MODULE_ID } from "./constants.js";
+import { getCombatantTurnDone, setCombatantTurnDone, setCombatTurn } from "./util/combat-turns.js";
 
 Hooks.once("ready", () => {
   if (!game.modules.get("token-action-hud-core")?.active) return;
@@ -9,25 +10,6 @@ Hooks.once("ready", () => {
     if (html instanceof HTMLElement) return html;
     if (html?.[0] instanceof HTMLElement) return html[0];
     return null;
-  };
-
-  const getSystemTurnDone = (combatant) => {
-    if (!combatant) return false;
-    const a = combatant.getFlag("conan2d20", "turnDone");
-    const b = combatant.getFlag("conan2d20", "turnCompleted");
-    return !!(a ?? b);
-  };
-
-  const setSystemTurnDone = async (combatant, value) => {
-    if (!combatant) return;
-    const v = !!value;
-
-    // System flags (source of truth for tracker + our logic)
-    await combatant.setFlag("conan2d20", "turnDone", v);
-    await combatant.setFlag("conan2d20", "turnCompleted", v);
-
-    // Keep module flag aligned (used by your HUD logic/warnings)
-    await combatant.setFlag(MODULE_ID, "turnDone", v);
   };
 
   const isCombatTrackerMomentumUpdateEnabled = () => {
@@ -66,7 +48,7 @@ Hooks.once("ready", () => {
     return true;
   };
 
-  // --- Paint + DOM guards (works with v13 HTML hooks) ---
+  // --- Paint + DOM guards (works with v13/v14 HTML hooks) ---
   const onRenderTrackerHTML = async (_app, html) => {
     const combat = game.combat;
     if (!combat) return;
@@ -108,7 +90,7 @@ Hooks.once("ready", () => {
         if (!isNextRoundBtn(ev.target)) return;
 
         // If all completed (system state), do not interfere.
-        const allDone = combatNow.combatants.contents.every((c) => getSystemTurnDone(c));
+        const allDone = combatNow.combatants.contents.every((c) => getCombatantTurnDone(c));
         if (allDone) return;
 
         // Begin Encounter: allow system flow (round 0 -> 1)
@@ -130,7 +112,7 @@ Hooks.once("ready", () => {
         }
 
         const pending = combatNow.combatants.contents
-          .filter((c) => !getSystemTurnDone(c))
+          .filter((c) => !getCombatantTurnDone(c))
           .map((c) => c.name);
 
         const targetRound = currentRound + 1;
@@ -161,6 +143,7 @@ Hooks.once("ready", () => {
         const combatNow = game.combat;
         if (!combatNow) return;
         if (!isTurnToggle(ev.target)) return;
+        if (!game.user?.isGM) return;
 
         // Do not allow toggling before the encounter starts (round 0)
         if (Number(combatNow.round ?? 0) === 0) {
@@ -179,8 +162,8 @@ Hooks.once("ready", () => {
         const combatant = combatNow.combatants.get(combatantId);
         if (!combatant) return;
 
-        const next = !getSystemTurnDone(combatant);
-        await setSystemTurnDone(combatant, next);
+        const next = !getCombatantTurnDone(combatant);
+        await setCombatantTurnDone(combatant, next, { bankMomentum: true });
 
         try { await ui.combat?.render?.(); } catch (_e) {}
       };
@@ -201,7 +184,7 @@ Hooks.once("ready", () => {
         const turns = combatNow.turns ?? [];
         const pendingIdx = [];
         for (let i = 0; i < turns.length; i++) {
-          if (!getSystemTurnDone(turns[i])) pendingIdx.push(i);
+          if (!getCombatantTurnDone(turns[i])) pendingIdx.push(i);
         }
 
         // No pending combatants => warn and stay in round
@@ -215,7 +198,7 @@ Hooks.once("ready", () => {
         // Find first pending index strictly greater than current; else wrap to first pending
         const next = pendingIdx.find((i) => i > cur) ?? pendingIdx[0];
 
-        await combatNow.update({ turn: next });
+        await setCombatTurn(combatNow, next);
       };
 
       // 4) Previous Turn: cycle through COMPLETED combatants (no round changes)
@@ -234,7 +217,7 @@ Hooks.once("ready", () => {
         const turns = combatNow.turns ?? [];
         const doneIdx = [];
         for (let i = 0; i < turns.length; i++) {
-          if (getSystemTurnDone(turns[i])) doneIdx.push(i);
+          if (getCombatantTurnDone(turns[i])) doneIdx.push(i);
         }
 
         // No completed combatants => warn and stay in round
@@ -252,7 +235,7 @@ Hooks.once("ready", () => {
         }
         if (prev < 0) prev = doneIdx[doneIdx.length - 1];
 
-        await combatNow.update({ turn: prev });
+        await setCombatTurn(combatNow, prev);
       };
 
       // 5) Previous Round: always reimburse momentum
@@ -325,7 +308,7 @@ Hooks.once("ready", () => {
       const combatant = combat.combatants.get(combatantId);
       if (!combatant) continue;
 
-      const done = getSystemTurnDone(combatant);
+      const done = getCombatantTurnDone(combatant);
 
       row.classList.toggle("tahc2d20-turn-done", done);
       row.classList.toggle("tahc2d20-turn-not-done", !done);
@@ -352,21 +335,12 @@ Hooks.once("ready", () => {
   Hooks.on("renderCombatTracker", onRenderTrackerHTML);
   Hooks.on("renderCombatTracker2d20V2", onRenderTrackerHTML);
 
-  // Reset Turn Completed on new round (forward or backward)
+  // Repaint the tracker on round changes. The Conan system stores completion per round,
+  // so no manual combatant flag reset is needed here.
   Hooks.on("updateCombat", async (combat, changed) => {
     if (!("round" in changed)) return;
     if (!combat) return;
 
-    const updates = combat.combatants.contents.map((c) => ({
-      _id: c.id,
-      "flags.conan2d20.turnDone": false,
-      "flags.conan2d20.turnCompleted": false,
-      [`flags.${MODULE_ID}.turnDone`]: false
-    }));
-
-    if (updates.length) {
-      await combat.updateEmbeddedDocuments("Combatant", updates);
-      try { await ui.combat?.render?.(); } catch (_e) {}
-    }
+    try { await ui.combat?.render?.(); } catch (_e) {}
   });
 });

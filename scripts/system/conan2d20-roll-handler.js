@@ -1,4 +1,5 @@
 import { ACTION_TYPES, MODULE_ID, SETTING_KEYS, CHAT_POST_MODES } from "../constants.js";
+import { getCombatantTurnDone, setCombatantTurnDone, setCombatTurn } from "../util/combat-turns.js";
 
 export let Conan2d20RollHandler = null;
 
@@ -106,18 +107,29 @@ export function initConan2d20RollHandler(coreModule) {
         }
 
         case ACTION_TYPES.TURN_CLAIM: {
-          if (game.combat && Number(game.combat.round ?? 0) === 0) {
+          if (!game.combat) {
+            ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.NoActiveCombat"));
+            return;
+          }
+
+          if (Number(game.combat.round ?? 0) === 0) {
             ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.CombatNotStarted"));
             return;
           }
 
-          const alreadyDone = await this._isTurnDone(actor);
+          const c = this._getActorCombatant(actor);
+          if (!c) {
+            ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.NoCombatant"));
+            return;
+          }
+
+          const alreadyDone = getCombatantTurnDone(c);
           if (alreadyDone) {
             ui.notifications.warn(game.i18n.format("TAH.Conan2d20.TurnAlreadyDone", { name: actor.name }));
             return;
           }
 
-          const c = await this._setCombatTurnToActor(actor);
+          await this._setCombatTurnToCombatant(c);
 
           const msg = game.i18n.format("TAH.Conan2d20.ClaimTurnChat", { name: actor.name });
           ui.notifications.info(msg);
@@ -132,18 +144,32 @@ export function initConan2d20RollHandler(coreModule) {
         }
 
         case ACTION_TYPES.TURN_SEIZE: {
-          if (game.combat && Number(game.combat.round ?? 0) === 0) {
+          if (!game.combat) {
+            ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.NoActiveCombat"));
+            return;
+          }
+
+          if (Number(game.combat.round ?? 0) === 0) {
             ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.CombatNotStarted"));
             return;
           }
 
-          const alreadyDone = await this._isTurnDone(actor);
+          const c = this._getActorCombatant(actor);
+          if (!c) {
+            ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.NoCombatant"));
+            return;
+          }
+
+          const alreadyDone = getCombatantTurnDone(c);
           if (alreadyDone) {
             ui.notifications.warn(game.i18n.format("TAH.Conan2d20.TurnAlreadyDone", { name: actor.name }));
             return;
           }
 
-          const c = await this._setCombatTurnToActor(actor);
+          const spentDoom = await this._spendDoom(1);
+          if (!spentDoom) return;
+
+          await this._setCombatTurnToCombatant(c);
 
           const msg = game.i18n.format("TAH.Conan2d20.SeizeTurnChat", { name: actor.name });
           ui.notifications.info(msg);
@@ -181,7 +207,7 @@ export function initConan2d20RollHandler(coreModule) {
       return item?.sheet?.render(true);
     }
 
-    async _setCombatTurnToActor(actor) {
+    _getActorCombatant(actor) {
       const combat = game.combat;
       if (!combat) return null;
 
@@ -191,48 +217,37 @@ export function initConan2d20RollHandler(coreModule) {
         actor.getActiveTokens?.()?.[0] ??
         null;
 
-      const combatant =
+      return (
         token?.combatant ??
         combat.combatants?.find((c) => c.tokenId === token?.id) ??
         combat.combatants?.find((c) => c.actorId === actor.id) ??
-        null;
+        null
+      );
+    }
 
-      if (!combatant) return null;
+    async _setCombatTurnToCombatant(combatant) {
+      const combat = game.combat;
+      if (!combat || !combatant) return null;
 
       const turns = combat.turns ?? [];
       const idx = turns.findIndex((t) => t?.id === combatant.id);
       if (idx >= 0) {
-        await combat.update({ turn: idx });
+        await setCombatTurn(combat, idx);
       }
 
       return combatant;
     }
 
+    async _setCombatTurnToActor(actor) {
+      return this._setCombatTurnToCombatant(this._getActorCombatant(actor));
+    }
+
     async _isTurnDone(actor) {
-      const combat = game.combat;
-      if (!combat) return false;
-
-      const token =
-        this.token ??
-        actor.getActiveTokens?.(true, true)?.[0] ??
-        actor.getActiveTokens?.()?.[0] ??
-        null;
-
-      const combatant =
-        token?.combatant ??
-        combat.combatants?.find((c) => c.tokenId === token?.id) ??
-        combat.combatants?.find((c) => c.actorId === actor.id) ??
-        null;
-
+      const combatant = this._getActorCombatant(actor);
       if (!combatant) return false;
 
-      // System is the source of truth
-      const sysDone = combatant.getFlag("conan2d20", "turnDone");
-      const sysCompleted = combatant.getFlag("conan2d20", "turnCompleted");
-      if (sysDone != null || sysCompleted != null) return !!(sysDone ?? sysCompleted);
-
-      // Fallback to our module flag
-      return !!combatant.getFlag(MODULE_ID, "turnDone");
+      // The Conan system stores turn-completion on the Combat document per round.
+      return getCombatantTurnDone(combatant);
     }
 
     async _setTurnDone(_actor, done, combatantOverride = null) {
@@ -242,14 +257,37 @@ export function initConan2d20RollHandler(coreModule) {
       const combatant = combatantOverride ?? combat.combatant;
       if (!combatant) return;
 
-      const v = !!done;
+      await setCombatantTurnDone(combatant, done, { bankMomentum: true });
+    }
 
-      // System flags (source of truth for the tracker toggle)
-      await combatant.setFlag("conan2d20", "turnDone", v);
-      await combatant.setFlag("conan2d20", "turnCompleted", v);
 
-      // Keep module logic in sync
-      await combatant.setFlag(MODULE_ID, "turnDone", v);
+    async _spendDoom(cost = 1) {
+      const systemId = "conan2d20";
+      const current = Number(game.settings.get(systemId, "doom") ?? 0);
+
+      if (!Number.isFinite(current)) {
+        ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.DoomNotFound"));
+        return false;
+      }
+
+      if (current < cost) {
+        ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.NoDoomAvailable"));
+        return false;
+      }
+
+      try {
+        const tracker = globalThis.conan?.apps?.MomentumTrackerV2;
+        if (typeof tracker?.changeCounter === "function") {
+          await tracker.changeCounter(-cost, "doom");
+        } else {
+          await game.settings.set(systemId, "doom", Math.max(0, current - cost));
+        }
+        return true;
+      } catch (err) {
+        console.warn(`${MODULE_ID} | Failed to spend Doom.`, err);
+        ui.notifications.warn(game.i18n.localize("TAH.Conan2d20.DoomNotFound"));
+        return false;
+      }
     }
 
     async _applyStressCost(actor, skillKey, dice) {
